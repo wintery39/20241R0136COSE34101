@@ -99,7 +99,7 @@ void FCFS(Process* pd[], int process_count){
         
         // I/O operation 실행
         // 만약 remain each I/O burst가 0이면, process를 ready queue로 이동시킴
-        Io_Operation(readyqueue, waitqueue, &readyrear, &waitfront, &waitrear, current_time);
+        Io_Operation(readyqueue, waitqueue, &readyrear, &waitfront, &waitrear, current_time+1);
 
         // running
         if(running != NULL){
@@ -154,7 +154,7 @@ void SJF(Process* pd[], int process_count){
             }
         }
 
-        // 1초 지났다고 가정
+        
         
         // ready -> running
         // 만약 running이 NULL이면, ready queue 맨 앞에 있는 process가 running을 시작
@@ -164,9 +164,11 @@ void SJF(Process* pd[], int process_count){
             running->waiting_time += current_time - running->waiting_start;
         }
 
+        // 1초 지났다고 가정
+        
         // I/O operation 실행
         // 만약 remain each I/O burst가 0이면, process를 ready queue로 이동시킴
-        Io_OperationByBurst(readyqueue, waitqueue, &readyfront, &readyrear, &waitfront, &waitrear, current_time);
+        Io_OperationByBurst(readyqueue, waitqueue, &readyfront, &readyrear, &waitfront, &waitrear, current_time + 1);
 
         // running
         if(running != NULL){
@@ -246,7 +248,7 @@ void SJF_Preemptive(Process* pd[], int process_count){
 
         // I/O operation 실행
         // 만약 I/O burst가 0이 되면, 해당 process를 ready queue에 remain_cpu_burst기준으로 정렬해 이동시킴
-        Io_OperationByBurst(readyqueue, waitqueue, &readyfront, &readyrear, &waitfront, &waitrear, current_time);
+        Io_OperationByBurst(readyqueue, waitqueue, &readyfront, &readyrear, &waitfront, &waitrear, current_time + 1);
 
         // running
         if(running != NULL){
@@ -313,7 +315,7 @@ void Priority(Process* pd[], int process_count){
 
         // I/O operation 실행
         // 만약 remain each I/O burst가 0이면, process를 ready queue에 Priority로 정렬해  이동시킴
-        Io_OperationByPriority(readyqueue, waitqueue, &readyfront, &readyrear, &waitfront, &waitrear, current_time);
+        Io_OperationByPriority(readyqueue, waitqueue, &readyfront, &readyrear, &waitfront, &waitrear, current_time + 1);
 
         // running
         if(running != NULL){
@@ -393,7 +395,7 @@ void Priority_Preemptive(Process* pd[], int process_count){
 
         // I/O operation 실행
         // 만약 I/O burst가 0이 되면, 해당 process를 ready queue에 priority기준으로 정렬해 이동시킴
-        Io_OperationByPriority(readyqueue, waitqueue, &readyfront, &readyrear, &waitfront, &waitrear, current_time);
+        Io_OperationByPriority(readyqueue, waitqueue, &readyfront, &readyrear, &waitfront, &waitrear, current_time + 1);
 
         // running
         if(running != NULL){
@@ -463,7 +465,7 @@ void RR(Process* pd[], int process_count, int timequantum){
 
         // I/O operation 실행
         // 만약 remain each I/O burst가 0이면, process를 ready queue로 이동시킴
-        Io_Operation(readyqueue, waitqueue, &readyrear, &waitfront, &waitrear, current_time);
+        Io_Operation(readyqueue, waitqueue, &readyrear, &waitfront, &waitrear, current_time + 1);
 
         // running
         if(running != NULL){
@@ -573,7 +575,7 @@ void MLQ(Process* pd[], int process_count, int timequantum){
         for(int i = 0;i<2;i++){
             // I/O operation 실행
             // 만약 remain each I/O burst가 0이면, process를 ready queue로 이동시킴
-            Io_Operation(readyqueue[i], waitqueue[i], &readyrear[i], &waitfront[i], &waitrear[i], current_time);
+            Io_Operation(readyqueue[i], waitqueue[i], &readyrear[i], &waitfront[i], &waitrear[i], current_time + 1);
         }
 
         // running
@@ -659,7 +661,7 @@ void MLFQ(Process* pd[], int process_count){
 
             // I/O operation 실행
             // 만약 remain each I/O burst가 0이면, process를 ready queue로 이동시킴
-            Io_Operation(readyqueue[i == 2 ? 2 : i + 1], waitqueue[i], &readyrear[i == 2 ? 2 : i + 1], &waitfront[i], &waitrear[i], current_time);
+            Io_Operation(readyqueue[i == 2 ? 2 : i + 1], waitqueue[i], &readyrear[i == 2 ? 2 : i + 1], &waitfront[i], &waitrear[i], current_time + 1);
         }
             
         // running
@@ -696,7 +698,7 @@ void MLFQ(Process* pd[], int process_count){
     return;
 }
 
-// prioirty를 기준으로 lottery를 수행
+// prioirty를 기준으로g lottery를 수행
 void Lottery(Process* pd[], int process_count){
     int terminated = 0;
     int current_time = 0;
@@ -754,7 +756,7 @@ void Lottery(Process* pd[], int process_count){
   
         // I/O operation 실행
         // 만약 remain each I/O burst가 0이면, process를 ready queue로 이동시킴
-        Io_Operation(readyqueue, waitqueue, &readyrear, &waitfront, &waitrear, current_time);
+        Io_Operation(readyqueue, waitqueue, &readyrear, &waitfront, &waitrear, current_time + 1);
 
         // running
         if(running != NULL){
