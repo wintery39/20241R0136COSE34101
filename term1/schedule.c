@@ -8,9 +8,10 @@ void Priority_Preemptive(Process* pd[], int process_count);
 void RR(Process* pd[], int process_count, int timequantum);
 void MLQ(Process* pd[], int process_count, int timequantum);
 void MLFQ(Process* pd[], int process_count);
+void Lottery(Process* pd[], int process_count);
 
 //n에 따라 schedule할당
-//n = FCFS : 1, SJF : 2, SJF_Preemptive : 3, Priority : 4, Priority_Preemptive : 5, Round Robin : 6, MLQ : 7, MLFQ : 8
+//n = FCFS : 1, SJF : 2, SJF_Preemptive : 3, Priority : 4, Priority_Preemptive : 5, Round Robin : 6, MLQ : 7, MLFQ : 8, Lottery : 9
 void Schedule(Process *pd[], int process_count, int n, int timequantum){
     switch (n){
         case 1:
@@ -44,6 +45,10 @@ void Schedule(Process *pd[], int process_count, int n, int timequantum){
         case 8:
             printf("MLFQ\n");
             MLFQ(pd, process_count);
+            break;
+        case 9:
+            printf("Lottery\n");
+            Lottery(pd, process_count);
             break;
         default:
             printf("Wrong input\n");
@@ -90,12 +95,13 @@ void FCFS(Process* pd[], int process_count){
             running->waiting_time += current_time - running->waiting_start;
         }
 
+        // 1초 지났다고 가정
+        
         // I/O operation 실행
         // 만약 remain each I/O burst가 0이면, process를 ready queue로 이동시킴
         Io_Operation(readyqueue, waitqueue, &readyrear, &waitfront, &waitrear, current_time);
 
         // running
-        // 1초 지났다고 가정
         if(running != NULL){
             running->remain_cpu_burst--;
             addGantt(running, current_time); //for draw Gantt chart
@@ -148,6 +154,8 @@ void SJF(Process* pd[], int process_count){
             }
         }
 
+        // 1초 지났다고 가정
+        
         // ready -> running
         // 만약 running이 NULL이면, ready queue 맨 앞에 있는 process가 running을 시작
         if (readyfront != readyrear && running == NULL){
@@ -161,7 +169,6 @@ void SJF(Process* pd[], int process_count){
         Io_OperationByBurst(readyqueue, waitqueue, &readyfront, &readyrear, &waitfront, &waitrear, current_time);
 
         // running
-        // 1초 지났다고 가정
         if(running != NULL){
             running->remain_cpu_burst--;
             addGantt(running, current_time); //for draw Gantt chart
@@ -213,6 +220,7 @@ void SJF_Preemptive(Process* pd[], int process_count){
             }
         }
 
+        
         // ready -> running
         // 만약 running이 NULL이면, ready queue 맨 앞에 있는 process가 running을 시작
         if (readyfront != readyrear && running == NULL){
@@ -234,12 +242,13 @@ void SJF_Preemptive(Process* pd[], int process_count){
             running->waiting_time += current_time - running->waiting_start;
         }
 
+        // 1초 지났다고 가정
+
         // I/O operation 실행
         // 만약 I/O burst가 0이 되면, 해당 process를 ready queue에 remain_cpu_burst기준으로 정렬해 이동시킴
         Io_OperationByBurst(readyqueue, waitqueue, &readyfront, &readyrear, &waitfront, &waitrear, current_time);
 
         // running
-        // 1초 지났다고 가정
         if(running != NULL){
             running->remain_cpu_burst--;
             addGantt(running, current_time); //for draw Gantt chart
@@ -264,7 +273,7 @@ void SJF_Preemptive(Process* pd[], int process_count){
     return;
 }
 
-//Priority가 낮을수록 높은 우선순위를 가짐
+//Priority가 작을수록 높은 우선순위를 가짐
 void Priority(Process* pd[], int process_count){
     int terminated = 0;
     int current_time = 0;
@@ -300,12 +309,13 @@ void Priority(Process* pd[], int process_count){
             running->waiting_time += current_time - running->waiting_start;
         }
 
+        // 1초 지났다고 가정
+
         // I/O operation 실행
         // 만약 remain each I/O burst가 0이면, process를 ready queue에 Priority로 정렬해  이동시킴
         Io_OperationByPriority(readyqueue, waitqueue, &readyfront, &readyrear, &waitfront, &waitrear, current_time);
 
         // running
-        // 1초 지났다고 가정
         if(running != NULL){
             running->remain_cpu_burst--;
             addGantt(running, current_time); //for draw Gantt chart
@@ -330,6 +340,7 @@ void Priority(Process* pd[], int process_count){
     return;
 }
 
+//Priority가 작을수록 높은 우선순위를 가짐
 void Priority_Preemptive(Process* pd[], int process_count){
     int terminated = 0;
     int current_time = 0;
@@ -378,12 +389,13 @@ void Priority_Preemptive(Process* pd[], int process_count){
             running->waiting_time += current_time - running->waiting_start;
         }
 
+        // 1초 지났다고 가정
+
         // I/O operation 실행
         // 만약 I/O burst가 0이 되면, 해당 process를 ready queue에 priority기준으로 정렬해 이동시킴
         Io_OperationByPriority(readyqueue, waitqueue, &readyfront, &readyrear, &waitfront, &waitrear, current_time);
 
         // running
-        // 1초 지났다고 가정
         if(running != NULL){
             running->remain_cpu_burst--;
             addGantt(running, current_time); //for draw Gantt chart
@@ -425,7 +437,7 @@ void RR(Process* pd[], int process_count, int timequantum){
     
     while (terminated != process_count){
         // new -> ready
-        // 만약 arrival time <= current time, process를 ready queue에 CPU_Burst time으로 정렬해 이동시킴
+        // 만약 arrival time <= current time, process를 ready queue에 이동시킴
         if (new){
             for (int i=0; i<process_count; i++){
                 if(pd[i]->status == 0 && (pd[i]->arrival_time) <= current_time){
@@ -447,12 +459,13 @@ void RR(Process* pd[], int process_count, int timequantum){
             timequantum_count = 0;
         }
 
+        // 1초 지났다고 가정
+
         // I/O operation 실행
         // 만약 remain each I/O burst가 0이면, process를 ready queue로 이동시킴
         Io_Operation(readyqueue, waitqueue, &readyrear, &waitfront, &waitrear, current_time);
 
         // running
-        // 1초 지났다고 가정
         if(running != NULL){
             timequantum_count++;
             running->remain_cpu_burst--;
@@ -486,6 +499,8 @@ void RR(Process* pd[], int process_count, int timequantum){
     return;
 }
 
+// foreground queue(RR) 우선순위가 높은 process 배정 / 80%
+// background queue(FCFS) 우선순위가 낮은 process 배정 / 20%
 void MLQ(Process* pd[], int process_count, int timequantum){
     int terminated = 0;
     int current_time = 0;
@@ -506,13 +521,13 @@ void MLQ(Process* pd[], int process_count, int timequantum){
     
     while (terminated != process_count){
         // new -> ready
-        // 만약 arrival time <= current time, process를 ready queue에 CPU_Burst time으로 정렬해 이동시킴
+        // 만약 arrival time <= current time, process를 priority에 따라 다른 ready queue에 이동시킴
         if (new){
             for (int i=0; i<process_count; i++){
                 if(pd[i]->status == 0 && (pd[i]->arrival_time) <= current_time){
                     pd[i]->status = 1;
                     pd[i]->waiting_start = current_time;
-                    if (pd[i]->priority > (BurstMinus10/2))
+                    if (pd[i]->priority > (Priority_max/2))
                         Push(readyqueue[1], pd[i], &readyrear[1]);
                     else
                         Push(readyqueue[0], pd[i], &readyrear[0]);
@@ -553,13 +568,15 @@ void MLQ(Process* pd[], int process_count, int timequantum){
             timequantum_count = 0;
             current_queue = turn;
         }
+
+        // 1초 지났다고 가정
         for(int i = 0;i<2;i++){
             // I/O operation 실행
             // 만약 remain each I/O burst가 0이면, process를 ready queue로 이동시킴
             Io_Operation(readyqueue[i], waitqueue[i], &readyrear[i], &waitfront[i], &waitrear[i], current_time);
         }
+
         // running
-        // 1초 지났다고 가정
         if(running != NULL){
             timequantum_count++;
             running->remain_cpu_burst--;
@@ -593,6 +610,7 @@ void MLQ(Process* pd[], int process_count, int timequantum){
     return;
 }
 
+// RR 두 번 실행후 FCFS 실행
 void MLFQ(Process* pd[], int process_count){
     int terminated = 0;
     int current_time = 0;
@@ -613,7 +631,7 @@ void MLFQ(Process* pd[], int process_count){
     
     while (terminated != process_count){
         // new -> ready
-        // 만약 arrival time <= current time, process를 ready queue에 CPU_Burst time으로 정렬해 이동시킴
+        // 만약 arrival time <= current time, process를 ready queue에 이동시킴
         if (new){
             for (int i=0; i<process_count; i++){
                 if(pd[i]->status == 0 && (pd[i]->arrival_time) <= current_time){
@@ -637,13 +655,14 @@ void MLFQ(Process* pd[], int process_count){
                 current_queue = i;
             }
         
+            // 1초 지났다고 가정
 
             // I/O operation 실행
             // 만약 remain each I/O burst가 0이면, process를 ready queue로 이동시킴
             Io_Operation(readyqueue[i == 2 ? 2 : i + 1], waitqueue[i], &readyrear[i == 2 ? 2 : i + 1], &waitfront[i], &waitrear[i], current_time);
         }
-            // running
-            // 1초 지났다고 가정
+            
+        // running
         if(running != NULL){
             timequantum_count++;
             running->remain_cpu_burst--;
@@ -666,6 +685,99 @@ void MLFQ(Process* pd[], int process_count){
                 running->status = 1;
                 running->waiting_start = current_time;
                 Push(readyqueue[current_queue+1], running, &readyrear[current_queue+1]);
+                running = NULL;
+            }
+        }
+        current_time++;
+    }
+    //Gantt chart 출력
+    printGantt(current_time);
+
+    return;
+}
+
+// prioirty를 기준으로 lottery를 수행
+void Lottery(Process* pd[], int process_count){
+    int terminated = 0;
+    int current_time = 0;
+    int new = process_count;
+    int winner;
+    int lottery_sum = 0;
+    int lottery[MaxProcess];
+    
+    Process *readyqueue[MaxProcess+1];
+    Process *waitqueue[MaxProcess+1];
+    int readyfront = 0;
+    int readyrear = 0;
+    int waitfront = 0;
+    int waitrear = 0;
+
+    
+    Process *running = NULL;
+
+    for(int i = 0; i< process_count; i++){
+        lottery[pd[i]->pid-1] = Priority_max - pd[i]->priority;
+    }
+    while (terminated != process_count){
+        // new -> ready
+        // 만약 arrival time <= current time, process를 ready queue에 이동시킴
+        if (new){
+            for (int i=0; i<process_count; i++){
+                if(pd[i]->status == 0 && (pd[i]->arrival_time) <= current_time){
+                    pd[i]->status = 1;
+                    pd[i]->waiting_start = current_time;
+                    Push(readyqueue, pd[i], &readyrear);
+                    new--;
+                }
+            }
+        }
+        lottery_sum = 0;
+        for(int i=readyfront; i!=readyrear; i=(i+1)%(MaxProcess+1)){
+            lottery_sum += lottery[readyqueue[i]->pid-1];
+        }
+        // ready -> running
+        if (readyfront != readyrear){
+            winner = rand()%lottery_sum;
+            for(int i=readyfront; i!=readyrear; i=(i+1)%(MaxProcess+1)){
+                
+                winner -= lottery[readyqueue[i]->pid-1];
+                if(winner < 0){
+                    running = delete(readyqueue, &readyfront, &readyrear, i);
+                    running->status = 2;
+                    running->waiting_time += current_time - running->waiting_start;      
+                    break;
+                }
+            }
+        }
+
+        // 1초 지났다고 가정
+  
+        // I/O operation 실행
+        // 만약 remain each I/O burst가 0이면, process를 ready queue로 이동시킴
+        Io_Operation(readyqueue, waitqueue, &readyrear, &waitfront, &waitrear, current_time);
+
+        // running
+        if(running != NULL){
+            running->remain_cpu_burst--;
+            addGantt(running, current_time); //for draw Gantt chart
+            //cpu burst가 0이면 process terminate 시킴
+            if (running->remain_cpu_burst == 0){
+                running->turnaround_time = (current_time+1) - running->arrival_time;
+                running->status = 4;
+                terminated++;
+                running = NULL;
+            }
+            //process를 I/O queue로 이동
+            else if (running->current_io_timing != running->io_timing_num && running->io_timing[running->current_io_timing] == running->remain_cpu_burst){
+                running->status = 3;
+                Push(waitqueue, running, &waitrear);
+                running = NULL;
+            }
+            //process를 ready queue로 이동 
+            else{
+                running->status = 1;
+                running->waiting_start = current_time+1;
+                Push(readyqueue, running, &readyrear);
                 running = NULL;
             }
         }

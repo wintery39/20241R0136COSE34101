@@ -13,7 +13,7 @@ Process *Create_Process(int pid){
     process->io_timing_num = rand()%(Io_Num+1);
     process->io_burst = process->io_timing_num != 0 ? rand()%BurstMinus10+10 : 0; // Io_Num이 0이면 io가 발생하지 않으므로 burst도 0
     process->arrival_time = rand()%BurstMinus10;
-    process->priority = rand()%BurstMinus10;
+    process->priority = rand()%Priority_max;
     
     process->current_io_timing = 0;
     
