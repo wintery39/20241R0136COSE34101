@@ -630,7 +630,7 @@ void MLFQ(Process* pd[], int process_count){
     int timequantum_count = 0;
     int current_queue;
 
-    int timequantum[] = {1, 2};
+    int timequantum[] = {2, 4};
 
     Process *readyqueue[3][MaxProcess+1];
     Process *waitqueue[3][MaxProcess+1];
