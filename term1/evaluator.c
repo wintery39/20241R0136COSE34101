@@ -3,7 +3,7 @@
 double average_waittime[Schedule_num];
 double average_turnaroundtime[Schedule_num];
 
-char *schedule[Schedule_num] = {"FCFS", "SJF", "SJF_Preemptive", "Priority", "Priority_Preemptive", "RR", "MLQ", "MLFQ", "Lottery"};
+char *schedule[Schedule_num] = {"FCFS", "SJF", "SJF_Preemptive", "Priority", "Priority_Preemptive", "RR", "MLQ", "MLFQ", "Lottery", "HRRN", "Stride"};
 
 void add_wait_turnaround_time(Process *process[], int process_count, int n){
     //n -> FCFS = 1, SJF = 2, SJF_Preemptive = 3, Priority = 4, Priority_Preemptive = 5, RR = 6
@@ -62,7 +62,7 @@ void evaluation(){
         for(int j=1; j<Schedule_num; j++){
             if (average_turnaroundtime[index] == -1 && average_turnaroundtime[j] != -1)
                 index = j;
-            else if(average_turnaroundtime[index] > average_turnaroundtime[j] && average_waittime[j] != -1)
+            else if(average_turnaroundtime[index] > average_turnaroundtime[j] && average_turnaroundtime[j] != -1)
                 index = j;        
         }
         average_turnaroundtime[index] = -1;

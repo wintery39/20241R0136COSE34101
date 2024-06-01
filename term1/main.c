@@ -24,6 +24,68 @@ int main(void){
     for(int i=0;i<process_count;i++){
         pd[i] = Create_Process(i+1);
     }
+/*
+    //테스트용 process
+    pd[0] -> cpu_burst = 10;
+    pd[0] -> io_burst = 13;
+    pd[0] -> arrival_time = 0;
+    pd[0] -> priority = 0;
+    pd[0] -> io_timing_num = 2;
+    pd[0] -> io_timing[0] = 9;
+    pd[0] -> io_timing[1] = 8;
+    pd[0] -> io_each_burst[0] = 9;
+    pd[0] -> io_each_burst[1] = 4;
+    pd[0] -> remain_cpu_burst = 10;
+    pd[0] -> remain_io_each_burst[0] = 9;
+    pd[0] -> remain_io_each_burst[1] = 4;
+
+    pd[1] -> cpu_burst = 12;
+    pd[1] -> io_burst = 14;
+    pd[1] -> arrival_time = 1;
+    pd[1] -> priority = 3;
+    pd[1] -> io_timing_num = 3;
+    pd[1] -> io_timing[0] = 6;
+    pd[1] -> io_timing[1] = 5;
+    pd[1] -> io_timing[2] = 3;
+    pd[1] -> io_each_burst[0] = 11;
+    pd[1] -> io_each_burst[1] = 1;
+    pd[1] -> io_each_burst[2] = 2;
+    pd[1] -> remain_cpu_burst = 12;
+    pd[1] -> remain_io_each_burst[0] = 11;
+    pd[1] -> remain_io_each_burst[1] = 1;
+    pd[1] -> remain_io_each_burst[2] = 2;
+
+    pd[2] -> cpu_burst = 11;
+    pd[2] -> io_burst = 13;
+    pd[2] -> arrival_time = 2;
+    pd[2] -> priority = 2;
+    pd[2] -> io_timing_num = 2;
+    pd[2] -> io_timing[0] = 8;
+    pd[2] -> io_timing[1] = 2;
+    pd[2] -> io_each_burst[0] = 4;
+    pd[2] -> io_each_burst[1] = 9;
+    pd[2] -> remain_cpu_burst = 11;
+    pd[2] -> remain_io_each_burst[0] = 4;
+    pd[2] -> remain_io_each_burst[1] = 9;
+
+    pd[3] -> cpu_burst = 13;
+    pd[3] -> io_burst = 0;
+    pd[3] -> arrival_time = 1;
+    pd[3] -> priority = 3;
+    pd[3] -> io_timing_num = 0;
+    pd[3] -> remain_cpu_burst = 13;
+
+    pd[4] -> cpu_burst = 14;
+    pd[4] -> io_burst = 11;
+    pd[4] -> arrival_time = 3;
+    pd[4] -> priority = 2;
+    pd[4] -> io_timing_num = 1;
+    pd[4] -> io_timing[0] = 13;
+    pd[4] -> io_each_burst[0] = 11;
+    pd[4] -> remain_cpu_burst = 14;
+    pd[4] -> remain_io_each_burst[0] = 11;
+*/
+
     for(int i=0;i<process_count;i++){
         Print_Process(pd[i]);
     }
