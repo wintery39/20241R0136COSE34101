@@ -12,6 +12,7 @@ void Lottery(Process* pd[], int process_count);
 void HRRN(Process* pd[], int process_count);
 void Stride(Process* pd[], int process_count);
 void RR_with_Priority(Process* pd[], int process_count, int timequantum);
+void Priority_with_aging(Process* pd[], int process_count);
 
 //n에 따라 schedule할당
 //n = FCFS : 1, SJF : 2, SJF_Preemptive : 3, Priority : 4, Priority_Preemptive : 5, Round Robin : 6, MLQ : 7, MLFQ : 8, Lottery : 9, HRRN : 10, Stride : 11
@@ -64,6 +65,11 @@ void Schedule(Process *pd[], int process_count, int n, int timequantum){
         case 12:
             printf("RR_with_Priority\n");
             RR_with_Priority(pd, process_count, timequantum);
+            break;
+        case 13:
+            printf("Priority_with_aging\n");
+            Priority_with_aging(pd, process_count);
+            break;
         default:
             printf("Wrong input\n");
             break;
@@ -1055,6 +1061,85 @@ void RR_with_Priority(Process* pd[], int process_count, int timequantum){
     return;
 }
 
+
+void Priority_with_aging(Process* pd[], int process_count){
+    int terminated = 0; //terminate된 process 수
+    int current_time = 0; //현재 시간
+    int new = process_count; //new status인 process 수
+    
+    Process *readyqueue[MaxProcess+1];
+    Process *waitqueue[MaxProcess+1];
+    int readyfront = 0;
+    int readyrear = 0;
+    int waitfront = 0;
+    int waitrear = 0;
+
+    int idx;
+    
+    Process *running = NULL;
+    
+    while (terminated != process_count){
+        // new -> ready
+        // 만약 arrival time <= current time, process를 ready queue로 이동시킴
+        if (new){
+            for (int i=0; i<process_count; i++){
+                //status가 new이고 arrival time이 current time보다 작거나 같은 경우 ready queue로 이동
+                if(pd[i]->status == 0 && (pd[i]->arrival_time) <= current_time){
+                    pd[i]->status = 1;
+                    pd[i]->waiting_start = current_time;
+                    Push(readyqueue, pd[i], &readyrear);
+                    new--;
+                }
+            }
+        }
+ 
+        // ready -> running
+        // 만약 running이 NULL이면, priority가 제일 낮은 process가 running을 시작
+        if (readyfront != readyrear && running == NULL){
+            idx = readyfront;
+            // 가장 priority+aging결과가 작은 process의 index 찾기
+            for(int i=(readyfront+1)%(MaxProcess+1); i!=readyrear; i = i+1%(MaxProcess+1)){
+                if(readyqueue[i]->priority-(double)(current_time - readyqueue[i]->waiting_start)/5 < readyqueue[idx]->priority-(double)(current_time - readyqueue[i]->waiting_start)/5){  
+                    idx = i;
+                }
+            }
+            // 가장 priority+aging결과가 작은 process running으로 이동
+            running = delete(readyqueue, &readyfront, &readyrear, idx);
+            running->status = 2;
+            running->waiting_time += current_time - running->waiting_start;
+        }
+
+        // 1초 지났다고 가정
+        
+        // I/O operation 실행
+        // 만약 remain each I/O burst가 0이면, process를 ready queue로 이동시킴
+        Io_Operation(readyqueue, waitqueue, &readyrear, &waitfront, &waitrear, current_time+1);
+
+        // running
+        if(running != NULL){
+            running->remain_cpu_burst--;
+            addGantt(running, current_time); //for draw Gantt chart
+            //cpu burst가 0이면 process terminate 시킴
+            if (running->remain_cpu_burst == 0){
+                running->turnaround_time = (current_time+1) - running->arrival_time;
+                running->status = 4;
+                terminated++;
+                running = NULL;
+            }
+            //process를 I/O queue로 이동 
+            else if (running->current_io_timing != running->io_timing_num && running->io_timing[running->current_io_timing] == running->remain_cpu_burst){
+                running->status = 3;
+                Push(waitqueue, running, &waitrear);
+                running = NULL;
+            }
+        }
+        current_time++;
+    }
+    //Gantt chart 출력
+    printGantt(current_time);
+
+    return;
+}
 
 
 void Io_Operation(Process *readyqueue[], Process *waitqueue[], int *readyrear, int *waitfront, int *waitrear, int current_time){

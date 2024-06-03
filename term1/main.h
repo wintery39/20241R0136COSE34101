@@ -1,7 +1,7 @@
 #define MaxProcess 100
 #define Io_Num 3
 #define BurstMinus10 5
-#define Schedule_num 12
+#define Schedule_num 13
 #define Priority_max 5
 
 #include <stdio.h>
