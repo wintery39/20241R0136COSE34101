@@ -708,7 +708,7 @@ void MLFQ(Process* pd[], int process_count){
     return;
 }
 
-// prioirty를 기준으로g lottery를 수행
+// prioirty를 기준으로 lottery를 수행
 void Lottery(Process* pd[], int process_count){
     int terminated = 0;
     int current_time = 0;
@@ -726,7 +726,8 @@ void Lottery(Process* pd[], int process_count){
 
     
     Process *running = NULL;
-
+    
+    // priority를 기반으로 lottery 값 설정
     for(int i = 0; i< process_count; i++){
         lottery[pd[i]->pid-1] = Priority_max - pd[i]->priority;
     }
@@ -744,6 +745,7 @@ void Lottery(Process* pd[], int process_count){
             }
         }
         lottery_sum = 0;
+        // ready queue의 lottery 값의 합을 구함
         for(int i=readyfront; i!=readyrear; i=(i+1)%(MaxProcess+1)){
             lottery_sum += lottery[readyqueue[i]->pid-1];
         }
@@ -751,8 +753,8 @@ void Lottery(Process* pd[], int process_count){
         if (readyfront != readyrear){
             winner = rand()%lottery_sum;
             for(int i=readyfront; i!=readyrear; i=(i+1)%(MaxProcess+1)){
-                
                 winner -= lottery[readyqueue[i]->pid-1];
+                // winner가 0보다 작아지면 해당 process가 running으로 이동
                 if(winner < 0){
                     running = delete(readyqueue, &readyfront, &readyrear, i);
                     running->status = 2;
@@ -786,6 +788,7 @@ void Lottery(Process* pd[], int process_count){
                 running = NULL;
             }
             //process를 ready queue로 이동 
+            //1초마다 lottery를 기준으로 설정하므로
             else{
                 running->status = 1;
                 running->waiting_start = current_time+1;
@@ -844,7 +847,7 @@ void HRRN(Process* pd[], int process_count){
                     idx = i;
                 }
             }
-            // running으로 이동
+            // 가장 응답률이 높은 process running으로 이동
             running = delete(readyqueue, &readyfront, &readyrear, idx);
             running->status = 2;
             running->waiting_time += current_time - running->waiting_start;
@@ -930,9 +933,9 @@ void Stride(Process* pd[], int process_count){
                     idx = i;
                 }
             }
-            // running으로 이동
+            // 가장 pass값이 낮은 process running으로 이동
             running = delete(readyqueue, &readyfront, &readyrear, idx);
-            pass[running->pid-1] += stride[running->pid-1];
+            pass[running->pid-1] += stride[running->pid-1]; //pass값을 stride값만큼 증가시킴
             running->status = 2;
             running->waiting_time += current_time - running->waiting_start;
         }
