@@ -11,6 +11,7 @@ void MLFQ(Process* pd[], int process_count);
 void Lottery(Process* pd[], int process_count);
 void HRRN(Process* pd[], int process_count);
 void Stride(Process* pd[], int process_count);
+void RR_with_Priority(Process* pd[], int process_count, int timequantum);
 
 //n에 따라 schedule할당
 //n = FCFS : 1, SJF : 2, SJF_Preemptive : 3, Priority : 4, Priority_Preemptive : 5, Round Robin : 6, MLQ : 7, MLFQ : 8, Lottery : 9, HRRN : 10, Stride : 11
@@ -60,6 +61,9 @@ void Schedule(Process *pd[], int process_count, int n, int timequantum){
             printf("Stride\n");
             Stride(pd, process_count);
             break;
+        case 12:
+            printf("RR_with_Priority\n");
+            RR_with_Priority(pd, process_count, timequantum);
         default:
             printf("Wrong input\n");
             break;
@@ -961,6 +965,85 @@ void Stride(Process* pd[], int process_count){
             else if (running->current_io_timing != running->io_timing_num && running->io_timing[running->current_io_timing] == running->remain_cpu_burst){
                 running->status = 3;
                 Push(waitqueue, running, &waitrear);
+                running = NULL;
+            }
+        }
+        current_time++;
+    }
+    //Gantt chart 출력
+    printGantt(current_time);
+
+    return;
+}
+
+
+void RR_with_Priority(Process* pd[], int process_count, int timequantum){
+    int terminated = 0;
+    int current_time = 0;
+    int new = process_count;
+    int timequantum_count = 0;
+
+    Process *readyqueue[MaxProcess+1];
+    Process *waitqueue[MaxProcess+1];
+    int readyfront = 0;
+    int readyrear = 0;
+    int waitfront = 0;
+    int waitrear = 0;
+    
+    Process *running = NULL;
+    
+    while (terminated != process_count){
+        // new -> ready
+        // 만약 arrival time <= current time, process를 ready queue에 priority에 따라 이동시킴
+        if (new){
+            for (int i=0; i<process_count; i++){
+                if(pd[i]->status == 0 && (pd[i]->arrival_time) <= current_time){
+                    pd[i]->status = 1;
+                    pd[i]->waiting_start = current_time;
+                    PushByPriority(readyqueue, pd[i], &readyfront, &readyrear);
+                    new--;
+                }
+            }
+        }
+ 
+        // ready -> running
+        // 만약 running이 NULL이면, ready queue 맨 앞에 있는 process가 running을 시작
+        // 새로운 process가 들어왔으므로 timequantum_count 초기화
+        if (readyfront != readyrear && running == NULL){
+            running = deleteFront(readyqueue, &readyfront, &readyrear);
+            running->status = 2;
+            running->waiting_time += current_time - running->waiting_start;
+            timequantum_count = 0;
+        }
+
+        // 1초 지났다고 가정
+
+        // I/O operation 실행
+        // 만약 remain each I/O burst가 0이면, process를 priority에 따라 ready queue로 이동시킴
+        Io_OperationByPriority(readyqueue, waitqueue, &readyfront, &readyrear, &waitfront, &waitrear, current_time + 1);
+        // running
+        if(running != NULL){
+            timequantum_count++;
+            running->remain_cpu_burst--;
+            addGantt(running, current_time); //for draw Gantt chart
+            //cpu burst가 0이면 process terminate 시킴
+            if (running->remain_cpu_burst == 0){
+                running->turnaround_time = (current_time+1) - running->arrival_time;
+                running->status = 4;
+                terminated++;
+                running = NULL;
+            }
+            //process를 I/O queue로 이동
+            else if (running->current_io_timing != running->io_timing_num && running->io_timing[running->current_io_timing] == running->remain_cpu_burst){
+                running->status = 3;
+                Push(waitqueue, running, &waitrear);
+                running = NULL;
+            }
+            //time quantum이 다 되었을 때 ready queue로 Priority에 따라 이동
+            else if (timequantum_count == timequantum){
+                running->status = 1;
+                running->waiting_start = current_time;
+                PushByPriority(readyqueue, running, &readyfront, &readyrear);
                 running = NULL;
             }
         }
