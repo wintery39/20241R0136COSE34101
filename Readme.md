@@ -1,3 +1,3 @@
-# CPU Scheduler Simulator (Prof. Yoo)
+# CPU Scheduler Simulator 
 
-COSE341 Operating Systems
+COSE341 Operating Systems (Prof. Yoo)
